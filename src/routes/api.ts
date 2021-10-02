@@ -109,7 +109,7 @@ router.post("/comment", isLoggedIn, async (req, res) => {
     }
   },0)
 
-  return success(res, { id: 0, text: 'a', type: 'a', userId: 0, score: 0 })
+  return success(res, { id: 0, text: 'a', type: 'a', user_id: 0, score: 0 })
 });
 
 router.get("/comments", isLoggedIn, async (req, res) => {
@@ -129,7 +129,15 @@ router.get("/comments", isLoggedIn, async (req, res) => {
         lastPolledAt: new Date()
       },
     })
-    return success(res, comments)
+    return success(res, comments.map(c => {
+      return {
+        id: c.id,
+        score: c.score,
+        text: c.text,
+        type: c.type,
+        user_id: c.userId,
+      }
+    }))
   } catch (e) {
     error(res, 500, {message: "internal server error", error: e})
   }
