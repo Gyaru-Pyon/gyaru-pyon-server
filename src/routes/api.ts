@@ -45,7 +45,8 @@ router.post("/auth/signup", async (req, res) => {
   const user = await prisma.user.create({
     data: {
       name: `${req.body.name}`,
-      password_digest: await bcrypt.hash(`${req.body.password}`, 10)
+      password_digest: await bcrypt.hash(`${req.body.password}`, 10),
+      lastPolledAt: new Date()
     },
   });
 
@@ -116,13 +117,19 @@ router.get("/comments", isLoggedIn, async (req, res) => {
         createdAt: { gt: new Date((new Date()).getTime() - 600000) }
       },
     })
+    const activeUsers = await prisma.user.findMany({
+      where: {
+        lastPolledAt: { gt: new Date((new Date()).getTime() - 60000) }
+      }
+    })
     await prisma.user.update({
       where: { id: req.user.id },
       data: {
-        lastObtainedId: (await prisma.comment.findFirst({orderBy: {id : 'desc'}}))?.id || 0
+        lastObtainedId: (await prisma.comment.findFirst({orderBy: {id : 'desc'}}))?.id || 0,
+        lastPolledAt: new Date()
       },
     })
-    return success(res, {comments: comments})
+    return success(res, {comments: comments, userCount: activeUsers.length})
   } catch (e) {
     error(res, 500, {message: "internal server error", error: e})
   }

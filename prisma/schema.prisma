@@ -24,6 +24,7 @@ model User {
   lastObtainedId  Int       @default(0)
   comments        Comment[]
   createdAt       DateTime  @default(now())
+  lastPolledAt    DateTime
 }
 
 model Comment {
