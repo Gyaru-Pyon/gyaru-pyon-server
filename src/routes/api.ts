@@ -111,7 +111,10 @@ router.get("/comments", isLoggedIn, async (req, res) => {
 
   try {
     const comments = await prisma.comment.findMany({
-      where: { id: { gt: req.user?.lastObtainedId } },
+      where: {
+        id: { gt: req.user?.lastObtainedId },
+        createdAt: { gt: new Date((new Date()).getTime() - 600000) }
+      },
     })
     await prisma.user.update({
       where: { id: req.user.id },
