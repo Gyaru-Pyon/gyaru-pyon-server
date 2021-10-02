@@ -234,7 +234,7 @@ paths:
       tags:
       - "comment"
       summary: "コメントの取得"
-      description: "ユーザーごとにまだ取得していないかつ直近10分以内のコメントを取得します"
+      description: "ユーザーごとにまだ取得していないかつ直近10分以内のコメントと、アクティブなユーザー数を取得します"
       operationId: "comments"
       security:
       - Bearer:
