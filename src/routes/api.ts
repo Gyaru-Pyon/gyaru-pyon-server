@@ -109,7 +109,7 @@ router.post("/comment", isLoggedIn, async (req, res) => {
     }
   },0)
 
-  return success(res, { text: 'a', type: 'a', userId: 0 })
+  return success(res, { id: 0, text: 'a', type: 'a', userId: 0, score: 0 })
 });
 
 router.get("/comments", isLoggedIn, async (req, res) => {
