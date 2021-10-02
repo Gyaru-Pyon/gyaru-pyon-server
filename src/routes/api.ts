@@ -9,7 +9,7 @@ import { Deepl } from "../types/deepl";
 import { Tone, ToneResult } from "../types/tone";
 
 const isLoggedIn: RequestHandler = (req, res, next) => {
-  if (req.user == null) return error(res, 401, 'unauthorized')
+  if (req.user == null) return error(res, 401, { message: 'unauthorized'})
   next();
 };
 
@@ -85,7 +85,7 @@ router.get("/user/me", isLoggedIn, (req, res) => {
 });
 
 router.post("/comment", isLoggedIn, async (req, res) => {
-  if (req.user == null) return error(res, 401, 'unauthorized')
+  if (req.user == null) return error(res, 401, { message: 'unauthorized'})
   if (!checkProperty(req.body, ["text"]))
     return error(res, 400, { message: "invalid request" });
 
@@ -107,7 +107,7 @@ router.post("/comment", isLoggedIn, async (req, res) => {
 });
 
 router.get("/comments", isLoggedIn, async (req, res) => {
-  if (req.user == null) return error(res, 401, 'unauthorized')
+  if (req.user == null) return error(res, 401, { message: 'unauthorized' })
 
   try {
     const comments = await prisma.comment.findMany({
