@@ -236,7 +236,7 @@ paths:
       tags:
       - "comment"
       summary: "コメントの取得"
-      description: "ユーザーごとにまだ取得していないかつ直近10分以内のコメントと、アクティブなユーザー数を取得します"
+      description: "ユーザーごとにまだ取得していないかつ直近10分以内のコメントを取得します"
       operationId: "comments"
       security:
       - Bearer:
@@ -244,28 +244,25 @@ paths:
         200:
           description: "成功"
           schema:
-            type: "object"
-            properties:
-              user_count:
-                type: "integer"
-                example: 3
-              comments:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    id:
-                      type: "integer"
-                      example: 1
-                    text:
-                      type: "string"
-                      example: "ここどういう意味なんだろう..."
-                    userId:
-                      type: "integer"
-                      example: 1
-                    type:
-                      type: "string"
-                      example: 'confident'
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                id:
+                  type: "integer"
+                  example: 1
+                text:
+                  type: "string"
+                  example: "ここどういう意味なんだろう..."
+                userId:
+                  type: "integer"
+                  example: 1
+                type:
+                  type: "string"
+                  example: 'confident'
+                score:
+                  type: "float"
+                  example: '0.1'
   /emotions:
     get:
       tags:

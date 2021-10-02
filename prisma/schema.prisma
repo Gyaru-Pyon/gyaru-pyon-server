@@ -34,4 +34,5 @@ model Comment {
   userId          Int
   type            String
   createdAt       DateTime  @default(now())
+  score           Float
 }

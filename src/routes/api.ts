@@ -100,7 +100,8 @@ router.post("/comment", isLoggedIn, async (req, res) => {
         data: {
           text: `${req.body.text}`,
           type: tone.tone_id,
-          userId: id
+          userId: id,
+          score: tone.score
         }
       })
     }
@@ -119,11 +120,6 @@ router.get("/comments", isLoggedIn, async (req, res) => {
         createdAt: { gt: new Date((new Date()).getTime() - 600000) }
       },
     })
-    const activeUsers = await prisma.user.findMany({
-      where: {
-        lastPolledAt: { gt: new Date((new Date()).getTime() - 10000) }
-      }
-    })
     await prisma.user.update({
       where: { id: req.user.id },
       data: {
@@ -131,7 +127,7 @@ router.get("/comments", isLoggedIn, async (req, res) => {
         lastPolledAt: new Date()
       },
     })
-    return success(res, {comments: comments, userCount: activeUsers.length})
+    return success(res, comments)
   } catch (e) {
     error(res, 500, {message: "internal server error", error: e})
   }
