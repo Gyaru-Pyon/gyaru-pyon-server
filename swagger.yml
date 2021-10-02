@@ -244,6 +244,9 @@ paths:
           schema:
             type: "object"
             properties:
+              user_count:
+                type: "integer"
+                example: 3
               comments:
                 type: "array"
                 items:
