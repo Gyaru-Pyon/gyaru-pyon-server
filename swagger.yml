@@ -264,3 +264,42 @@ paths:
                     type:
                       type: "string"
                       example: 'confident'
+  /emotions:
+    get:
+      tags:
+      - "comment"
+      summary: "感情の取得"
+      description: "直近10分の感情の比率を返します"
+      operationId: "comments"
+      security:
+      - Bearer:
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: "object"
+            properties:
+              user_count:
+                type: "integer"
+                example: 3
+              emotions:
+                type: "array"
+                items:
+                  joy:
+                    type: "integer"
+                    example: 0.1
+                  sadness:
+                    type: "integer"
+                    example: 0.1
+                  fear:
+                    type: "integer"
+                    example: 0.1
+                  anger:
+                    type: "integer"
+                    example: 0.1
+                  confidence:
+                    type: "integer"
+                    example: 0.1
+                  tentative:
+                    type: "integer"
+                    example: 0.1
