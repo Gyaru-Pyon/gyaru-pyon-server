@@ -10,6 +10,8 @@ tags:
   description: "認証"
 - name: "user"
   description: "ユーザー情報"
+- name: "comment"
+  description: "投稿情報"
 schemes:
 - "https"
 consumes:
@@ -198,3 +200,64 @@ paths:
               message:
                 type: "string"
                 example: "unauthorized"
+
+  /comment:
+    post:
+      tags:
+      - "comment"
+      summary: "コメントを投稿"
+      description: "コメントを感情解析し、結果をデータベースに記録します"
+      operationId: "comment"
+      security:
+      - Bearer:
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "コメント"
+        required: true
+        schema:
+          type: "object"
+          required:
+          - "text"
+          properties:
+            text:
+              type: "string"
+              example: "ここどういう意味なんだろう..."
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: "object"
+            properties:
+  /comments:
+    get:
+      tags:
+      - "comment"
+      summary: "コメントの取得"
+      description: "ユーザーごとにまだ取得していないかつ直近10分以内のコメントを取得します"
+      operationId: "comments"
+      security:
+      - Bearer:
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: "object"
+            properties:
+              comments:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                      example: 1
+                    text:
+                      type: "string"
+                      example: "ここどういう意味なんだろう..."
+                    userId:
+                      type: "integer"
+                      example: 1
+                    type:
+                      type: "string"
+                      example: 'confident'
