@@ -270,7 +270,7 @@ paths:
       - "comment"
       summary: "感情の取得"
       description: "直近10分の感情の比率を返します"
-      operationId: "comments"
+      operationId: "emotions"
       security:
       - Bearer:
       responses:
