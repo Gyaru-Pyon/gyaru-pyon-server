@@ -144,18 +144,19 @@ router.get("/emotions", isLoggedIn, async (req, res) => {
         createdAt: { gt: new Date((new Date()).getTime() - 600000) }
       },
     })
+    const size = comments.length
     const activeUsers = await prisma.user.findMany({
       where: {
         lastPolledAt: { gt: new Date((new Date()).getTime() - 10000) }
       }
     })
     return success(res, {emotions: {
-      joy: comments.filter(c => c.type == 'joy'),
-      sadness: comments.filter(c => c.type == 'sadness'),
-      fear: comments.filter(c => c.type == 'fear'),
-      anger: comments.filter(c => c.type == 'anger'),
-      confidence: comments.filter(c => c.type == 'confidence'),
-      tentative: comments.filter(c => c.type == 'tentative'),
+      joy: comments.filter(c => c.type == 'joy').length / size,
+      sadness: comments.filter(c => c.type == 'sadness').length / size,
+      fear: comments.filter(c => c.type == 'fear').length / size,
+      anger: comments.filter(c => c.type == 'anger').length / size,
+      confidence: comments.filter(c => c.type == 'confidence').length / size,
+      tentative: comments.filter(c => c.type == 'tentative').length / size,
     }, userCount: activeUsers.length})
   } catch (e) {
     error(res, 500, {message: "internal server error", error: e})
