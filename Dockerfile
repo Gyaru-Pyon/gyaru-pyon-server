@@ -5,6 +5,6 @@ EXPOSE 3000
 ADD . /gyaru-pyon-server
 
 WORKDIR /gyaru-pyon-server
-RUN yarn && yarn build
+RUN npm i && npm run build
 
 CMD ["node", "dist"]
