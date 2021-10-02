@@ -95,16 +95,18 @@ router.post("/comment", isLoggedIn, async (req, res) => {
     const englishText = await translate(`${req.body.text}`)
     const toneResult = await analyzeTone(englishText)
     const tone = toneResult.document_tone.tones.reduce((a, b) => a.score > b.score ? a : b)
-    await prisma.comment.create({
-      data: {
-        text: `${req.body.text}`,
-        type: tone.tone_id,
-        userId: id
-      }
-    })
+    if(tone.tone_id != 'analytical' && tone.score != 0) {
+      await prisma.comment.create({
+        data: {
+          text: `${req.body.text}`,
+          type: tone.tone_id,
+          userId: id
+        }
+      })
+    }
   },0)
 
-  return success(res, {})
+  return success(res, { text: 'a', type: 'a', userId: 0 })
 });
 
 router.get("/comments", isLoggedIn, async (req, res) => {
@@ -138,8 +140,28 @@ router.get("/comments", isLoggedIn, async (req, res) => {
 router.get("/talk", isLoggedIn, async (req, res) => {
   if (req.user == null) return error(res, 401, { message: 'unauthorized' })
 
-  res.contentType('audio/mpeg')
-  res.send(await generateTalk("順調順調！いい感じ！"))
+  const comments = await prisma.comment.findMany({
+    where: {
+      id: { gt: req.user?.lastObtainedId },
+      createdAt: { gt: new Date((new Date()).getTime() - 600000) }
+    },
+  })
+  const activeUsers = await prisma.user.findMany({
+    where: {
+      lastPolledAt: { gt: new Date((new Date()).getTime() - 10000) }
+    }
+  })
+  const positive = comments.filter(c => c.type == 'joy' || c.type == 'confidence').length
+  const negative = comments.filter(c => c.type == 'sadness' || c.type == 'fear' || c.type == 'anger').length
+
+  const params = new URLSearchParams();
+  params.append("username", `${process.env.AITALK_USERNAME}`);
+  params.append("password", `${process.env.AITALK_PASSWORD}`);
+  const t = comments.length <= activeUsers.length / 2 ? talks.low : positive < negative ? talks.bad : talks.good
+  params.append("text", t[Math.floor(Math.random() * t.length)]);
+  speakers[Math.floor(Math.random() * speakers.length)].forEach(e => params.append(e[0], e[1]))
+
+  res.redirect(`https://webapi.aitalk.jp/webapi/v5/ttsget.php?${params.toString()}`)
 });
 
 router.get("/emotions", isLoggedIn, async (req, res) => {
@@ -151,12 +173,12 @@ router.get("/emotions", isLoggedIn, async (req, res) => {
         createdAt: { gt: new Date((new Date()).getTime() - 600000) }
       },
     })
-    const size = comments.length
     const activeUsers = await prisma.user.findMany({
       where: {
         lastPolledAt: { gt: new Date((new Date()).getTime() - 10000) }
       }
     })
+    const size = activeUsers.length || 1
     return success(res, {emotions: {
       joy: comments.filter(c => c.type == 'joy').length / size,
       sadness: comments.filter(c => c.type == 'sadness').length / size,
@@ -244,15 +266,23 @@ const speakers = [
   ]
 ]
 
-async function generateTalk(text: string) {
-  const params = new URLSearchParams();
-  params.append("username", `${process.env.AITALK_USERNAME}`);
-  params.append("password", `${process.env.AITALK_PASSWORD}`);
-  params.append("text", text);
-  speakers[Math.floor(Math.random() * speakers.length)].forEach(e => params.append(e[0], e[1]))
-
-  const result = await axios.post<URLSearchParams, AxiosResponse<ArrayBuffer>>('https://webapi.aitalk.jp/webapi/v5/ttsget.php', params);
-  return result.data
+const talks = {
+  good: [
+    '順調順調！いい感じ！',
+    'みんな楽しそう！きゅんです',
+    '順調すぎてさすが！あげぽよ！',
+    'やっぱ先生しか勝たん！最高！'
+  ],
+  bad: [
+    'あんまりみんなわかってないぽい。大丈夫そ？',
+    'しらけてるよ！盛り上げてこーー！！',
+    'もうちょい頑張ってこ！！'
+  ],
+  low: [
+    'ちょっとちょっと！注目浴びれてる？',
+    '全然みんな聞いてないぴょん。ぴえん！',
+    'ほらほら！こんな時には得意の雑談！'
+  ],
 }
 
 export default router;
