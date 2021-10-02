@@ -283,8 +283,8 @@ paths:
                 type: "integer"
                 example: 3
               emotions:
-                type: "array"
-                items:
+                type: "object"
+                properties:
                   joy:
                     type: "integer"
                     example: 0.1
