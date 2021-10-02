@@ -74,12 +74,8 @@ app.use(async (req, res, next) => {
 })
 
 // Router
-import root from './routes/root'
 import api from './routes/api'
-import auth from './routes/auth'
 
-app.use('/', root)
 app.use('/api', api)
-app.use('/auth', auth)
 
 server.listen(process.env.PORT || 3000)
