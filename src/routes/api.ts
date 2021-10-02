@@ -28,6 +28,7 @@ router.post("/auth/signin", async (req, res) => {
 
   if (!user || !(await bcrypt.compare(`${req.body.password}`, user.password_digest)))
     return error(res, 404, { message: "not found" });
+  req.session.user_id = user.id
 
   success(res, {
     access_token: jwt.sign({ user_id: user.id, type: 'access_token' }, `${process.env.JWT_SECRET}`, { expiresIn: '1h' }),
@@ -49,6 +50,7 @@ router.post("/auth/signup", async (req, res) => {
       lastPolledAt: new Date()
     },
   });
+  req.session.user_id = user.id
 
   success(res, {
     access_token: jwt.sign({ user_id: user.id, type: 'access_token' }, `${process.env.JWT_SECRET}`, { expiresIn: '1h' }),
