@@ -119,7 +119,7 @@ router.get("/comments", isLoggedIn, async (req, res) => {
     })
     const activeUsers = await prisma.user.findMany({
       where: {
-        lastPolledAt: { gt: new Date((new Date()).getTime() - 60000) }
+        lastPolledAt: { gt: new Date((new Date()).getTime() - 10000) }
       }
     })
     await prisma.user.update({
@@ -130,6 +130,33 @@ router.get("/comments", isLoggedIn, async (req, res) => {
       },
     })
     return success(res, {comments: comments, userCount: activeUsers.length})
+  } catch (e) {
+    error(res, 500, {message: "internal server error", error: e})
+  }
+});
+
+router.get("/emotions", isLoggedIn, async (req, res) => {
+  if (req.user == null) return error(res, 401, { message: 'unauthorized' })
+
+  try {
+    const comments = await prisma.comment.findMany({
+      where: {
+        createdAt: { gt: new Date((new Date()).getTime() - 600000) }
+      },
+    })
+    const activeUsers = await prisma.user.findMany({
+      where: {
+        lastPolledAt: { gt: new Date((new Date()).getTime() - 10000) }
+      }
+    })
+    return success(res, {emotions: {
+      joy: comments.filter(c => c.type == 'joy'),
+      sadness: comments.filter(c => c.type == 'sadness'),
+      fear: comments.filter(c => c.type == 'fear'),
+      anger: comments.filter(c => c.type == 'anger'),
+      confidence: comments.filter(c => c.type == 'confidence'),
+      tentative: comments.filter(c => c.type == 'tentative'),
+    }, userCount: activeUsers.length})
   } catch (e) {
     error(res, 500, {message: "internal server error", error: e})
   }
