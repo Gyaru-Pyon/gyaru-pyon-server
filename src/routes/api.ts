@@ -20,7 +20,7 @@ router.get("/", (req, res) => {
   res.json({ ok: true });
 });
 
-router.post("/auth/teacher/signin", async (req, res) => {
+router.post("/auth/signin", async (req, res) => {
   if (!checkProperty(req.body, ["name", "password"]))
     return error(res, 400, { message: "invalid request" });
 
@@ -135,6 +135,13 @@ router.get("/comments", isLoggedIn, async (req, res) => {
   }
 });
 
+router.get("/talk", isLoggedIn, async (req, res) => {
+  if (req.user == null) return error(res, 401, { message: 'unauthorized' })
+
+  res.contentType('audio/mpeg')
+  res.send(await generateTalk("順調順調！いい感じ！"))
+});
+
 router.get("/emotions", isLoggedIn, async (req, res) => {
   if (req.user == null) return error(res, 401, { message: 'unauthorized' })
 
@@ -212,6 +219,40 @@ function success(res: Response, data: any) {
 function error(res: Response, status: number, error: any) {
   res.status(status);
   res.json(error);
+}
+
+const speakers = [
+  [
+    [ "speaker_name", "reina" ],
+    [ "volume", "1.00" ],
+    [ "speed", "1.30" ],
+    [ "pitch", "1.00" ],
+    [ "range", "1.80" ],
+    [ "style", '{"j":"0.8","s":"0.0","a":"0.0"}' ],
+    [ "ext", "mp3" ],
+    [ "use_wdic", "1" ],
+  ],
+  [
+    [ "speaker_name", "maki" ],
+    [ "volume", "1.00" ],
+    [ "speed", "1.30" ],
+    [ "pitch", "1.00" ],
+    [ "range", "1.90" ],
+    [ "style", '{"j":"0.8","s":"0.0","a":"0.0"}' ],
+    [ "ext", "mp3" ],
+    [ "use_wdic", "1" ],
+  ]
+]
+
+async function generateTalk(text: string) {
+  const params = new URLSearchParams();
+  params.append("username", `${process.env.AITALK_USERNAME}`);
+  params.append("password", `${process.env.AITALK_PASSWORD}`);
+  params.append("text", text);
+  speakers[Math.floor(Math.random() * speakers.length)].forEach(e => params.append(e[0], e[1]))
+
+  const result = await axios.post<URLSearchParams, AxiosResponse<ArrayBuffer>>('https://webapi.aitalk.jp/webapi/v5/ttsget.php', params);
+  return result.data
 }
 
 export default router;
