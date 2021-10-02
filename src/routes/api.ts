@@ -155,10 +155,16 @@ router.get("/talk", isLoggedIn, async (req, res) => {
   const negative = comments.filter(c => c.type == 'sadness' || c.type == 'fear' || c.type == 'anger').length
 
   const params = new URLSearchParams();
-  params.append("username", `${process.env.AITALK_USERNAME}`);
-  params.append("password", `${process.env.AITALK_PASSWORD}`);
+
+  if(Math.floor(Math.random() * 10) < 3) {
+    const t = comments.length <= activeUsers.length / 2 ? talkFiles.low : positive < negative ? talkFiles.bad : talkFiles.good
+    return res.redirect('/sound/'+t[Math.floor(Math.random() * t.length)]);
+  }
+
   const t = comments.length <= activeUsers.length / 2 ? talks.low : positive < negative ? talks.bad : talks.good
   params.append("text", t[Math.floor(Math.random() * t.length)]);
+  params.append("username", `${process.env.AITALK_USERNAME}`);
+  params.append("password", `${process.env.AITALK_PASSWORD}`);
   speakers[Math.floor(Math.random() * speakers.length)].forEach(e => params.append(e[0], e[1]))
 
   res.redirect(`https://webapi.aitalk.jp/webapi/v5/ttsget.php?${params.toString()}`)
@@ -282,6 +288,36 @@ const talks = {
     'ちょっとちょっと！注目浴びれてる？',
     '全然みんな聞いてないぴょん。ぴえん！',
     'ほらほら！こんな時には得意の雑談！'
+  ],
+}
+
+const talkFiles = {
+  good: [
+    'emily-1.mp3',
+    'emily-2.mp3',
+    'emily-3.mp3',
+    'emily-4.mp3',
+    'uriko-1.mp3',
+    'uriko-2.mp3',
+    'uriko-3.mp3',
+    'uriko-4.mp3',
+  ],
+  bad: [
+    'emily-5.mp3',
+    'emily-6.mp3',
+    'emily-7.mp3',
+    'uriko-5.mp3',
+    'uriko-6.mp3',
+    'uriko-7.mp3'
+  ],
+  low: [
+    'emily-8.mp3',
+    'emily-9.mp3',
+    'emily-10.mp3',
+    'uriko-8.mp3',
+    'uriko-9.mp3',
+    'uriko-10.mp3',
+    'uriko-11.mp3'
   ],
 }
 
