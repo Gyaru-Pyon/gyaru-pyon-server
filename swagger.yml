@@ -12,6 +12,8 @@ tags:
   description: "ユーザー情報"
 - name: "comment"
   description: "投稿情報"
+- name: "talk"
+  description: "音声データ"
 schemes:
 - "https"
 consumes:
@@ -303,3 +305,20 @@ paths:
                   tentative:
                     type: "integer"
                     example: 0.1
+  /talk:
+    get:
+      tags:
+      - "talk"
+      summary: "コメント音声データ"
+      description: "現在のステータスに合わせた音声が帰ってきます"
+      operationId: "talk"
+      security:
+      - Bearer:
+      responses:
+        200:
+          description: "成功"
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
