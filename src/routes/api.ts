@@ -96,6 +96,16 @@ router.post("/comment", isLoggedIn, async (req, res) => {
   setTimeout(async () => {
     const englishText = await translate(`${req.body.text}`)
     const toneResult = await analyzeTone(englishText)
+    if(englishText.match(/cute/) || englishText.match(/Cute/) || englishText.match(/highest/)) {
+      return prisma.comment.create({
+        data: {
+          text: `${req.body.text}`,
+          type: 'tones',
+          userId: id,
+          score: 0.9
+        }
+      })
+    }
     if(toneResult.document_tone.tones.length == 0) return
     const tone = toneResult.document_tone.tones.reduce((a, b) => a.score > b.score ? a : b)
     if(tone.tone_id != 'analytical' && tone.score != 0) {
