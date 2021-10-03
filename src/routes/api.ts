@@ -100,7 +100,7 @@ router.post("/comment", isLoggedIn, async (req, res) => {
       return prisma.comment.create({
         data: {
           text: `${req.body.text}`,
-          type: 'tones',
+          type: 'joy',
           userId: id,
           score: 0.9
         }
