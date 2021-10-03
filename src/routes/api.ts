@@ -96,6 +96,7 @@ router.post("/comment", isLoggedIn, async (req, res) => {
   setTimeout(async () => {
     const englishText = await translate(`${req.body.text}`)
     const toneResult = await analyzeTone(englishText)
+    if(toneResult.document_tone.tones.length == 0) return
     const tone = toneResult.document_tone.tones.reduce((a, b) => a.score > b.score ? a : b)
     if(tone.tone_id != 'analytical' && tone.score != 0) {
       await prisma.comment.create({
